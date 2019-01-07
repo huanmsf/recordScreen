@@ -6,44 +6,64 @@ from PIL import ImageGrab, Image
 from skimage.measure import compare_ssim
 import cv2, time, pyautogui as pag, webbrowser, threading, sys
 
+# 程序是否启动
 running = True
+# 播放状态，由截图确定
 playing = False
+# 是否是测试
 is_test = False
+# 需要显示状态条
 need_show = False
+# 一个视频录制的开始时间
 start_time = time.time()
+# 录制状态，有F9按下次数决定
+record_flag = False
+
 m = PyMouse()
 k = PyKeyboard()
 
 # 课程的地址列表
+# "https://edu.aqniu.com/course/83/task/13057/show",
+# "https://edu.aqniu.com/course/83/task/13063/show",
+# "https://edu.aqniu.com/course/83/task/19747/show",
 courseUrlList = [
-    "https://edu.aqniu.com/course/83/task/13057/show",
-    "https://edu.aqniu.com/course/83/task/13063/show",
     "https://edu.aqniu.com/course/83/task/13551/show",
     "https://edu.aqniu.com/course/83/task/13557/show",
     "https://edu.aqniu.com/course/83/task/17494/show",
     "https://edu.aqniu.com/course/83/task/17500/show",
     "https://edu.aqniu.com/course/83/task/17506/show",
-    "https://edu.aqniu.com/course/83/task/17512/show"
+    "https://edu.aqniu.com/course/83/task/17512/show",
+
+    "https://edu.aqniu.com/course/83/task/19741/show",
+
+    "https://edu.aqniu.com/course/83/task/19753/show"
+
 ]
 
 
 # 全屏
 def full_screen():
-    global start_time
+    global start_time, record_flag
     time.sleep(2)
     m.click(800, 500, 1, 2)
     switch_record_status()
     start_time = time.time()
+    # 如果没有录制，重新切割
+    if not record_flag:
+        switch_record_status()
     # 进度条到最开始位置
     to_start()
 
 
 # 退出全屏
 def un_full_screen():
-    global playing, need_show, start_time
+    global playing, need_show, start_time, record_flag
     time.sleep(2)
     switch_record_status()
     start_time = time.time()
+    # 如果在录制，重新切割
+    if record_flag:
+        switch_record_status()
     time.sleep(2)
     m.click(800, 500, 1, 2)
     playing = False
@@ -67,8 +87,10 @@ def switch_play_status():
 
 # 切换录屏状态 F9
 def switch_record_status():
+    global record_flag
     k.press_key(k.function_keys[9])
     k.release_key(k.function_keys[9])
+    record_flag = not record_flag
 
 
 def goto_url(url):
@@ -131,8 +153,8 @@ def screenshots():
         if calculate("status.jpg", "playing_L.jpg") > calculate("status.jpg", "stopped_L.jpg"):
             print("playing......")
             playing = True
-            # 到了2分钟就跳到最后，测试使用
-            if is_test and time.time() - start_time > 60 * 4:
+            # 到了3分钟就跳到最后，测试使用
+            if is_test and time.time() - start_time > 60 * 3:
                 un_full_screen()
                 playing = False
                 need_show = False
