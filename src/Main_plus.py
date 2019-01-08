@@ -103,6 +103,7 @@ def goto_url(url):
     time.sleep(3)
     k.type_string(url)
     # 回车
+    m.click(1000, 80)
     k.press_key(k.enter_key)
     time.sleep(1)
     k.press_key(k.enter_key)
@@ -114,7 +115,7 @@ def show_progress_bar():
     global playing, need_show, start_time, is_test, running
     while running:
         if need_show:
-            time.sleep(1)
+            time.sleep(2)
             k.press_key('6')
             k.release_key('6')
         else:
@@ -124,7 +125,7 @@ def show_progress_bar():
 # 在to_start 调用后 显示进度条,控制条5秒
 def show_progress_bar_same_time():
     for i in range(10):
-        time.sleep(1)
+        time.sleep(2)
         k.press_key('6')
         k.release_key('6')
 
