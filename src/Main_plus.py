@@ -6,6 +6,7 @@ from PIL import ImageGrab, Image
 from skimage.measure import compare_ssim
 import cv2, time, pyautogui as pag, webbrowser, threading, sys
 
+lock = threading.Lock()
 # 程序是否启动
 running = True
 # 播放状态，由截图确定
@@ -26,18 +27,16 @@ k = PyKeyboard()
 # "https://edu.aqniu.com/course/83/task/13057/show",
 # "https://edu.aqniu.com/course/83/task/13063/show",
 # "https://edu.aqniu.com/course/83/task/19747/show",
+
+# "https://edu.aqniu.com/course/83/task/13551/show",
+# "https://edu.aqniu.com/course/83/task/17512/show",
+# "https://edu.aqniu.com/course/83/task/19741/show",
 courseUrlList = [
-    "https://edu.aqniu.com/course/83/task/13551/show",
     "https://edu.aqniu.com/course/83/task/13557/show",
     "https://edu.aqniu.com/course/83/task/17494/show",
     "https://edu.aqniu.com/course/83/task/17500/show",
     "https://edu.aqniu.com/course/83/task/17506/show",
-    "https://edu.aqniu.com/course/83/task/17512/show",
-
-    "https://edu.aqniu.com/course/83/task/19741/show",
-
     "https://edu.aqniu.com/course/83/task/19753/show"
-
 ]
 
 
@@ -66,8 +65,10 @@ def un_full_screen():
         switch_record_status()
     time.sleep(2)
     m.click(800, 500, 1, 2)
+    lock.acquire()
     playing = False
     need_show = False
+    lock.release()
     time.sleep(5)
 
 
@@ -90,13 +91,17 @@ def switch_record_status():
     global record_flag
     k.press_key(k.function_keys[9])
     k.release_key(k.function_keys[9])
+    lock.acquire()
     record_flag = not record_flag
+    lock.release()
 
 
 def goto_url(url):
     global playing, need_show
+    lock.acquire()
     playing = False
     need_show = False
+    lock.release()
     time.sleep(3)
     m.click(700, 80)
     k.press_keys([k.control_key, 'a'])
@@ -144,8 +149,10 @@ def screenshots():
             if time.time() - start_time < 60 * 2:
                 print("无效截图")
             else:
+                lock.acquire()
                 playing = False
                 need_show = False
+                lock.release()
                 print("持续无效截图 return")
             time.sleep(2)
             continue
@@ -153,12 +160,16 @@ def screenshots():
         # 全屏状态下的截图
         if calculate("status.jpg", "playing_L.jpg") > calculate("status.jpg", "stopped_L.jpg"):
             print("playing......")
+            lock.acquire()
             playing = True
+            lock.release()
             # 到了3分钟就跳到最后，测试使用
             if is_test and time.time() - start_time > 60 * 3:
                 un_full_screen()
+                lock.acquire()
                 playing = False
                 need_show = False
+                lock.release()
                 print("全屏状态下的截图 un_full_screen")
             else:
                 pass
@@ -166,16 +177,20 @@ def screenshots():
             print("stopped......")
             if time.time() - start_time < 60 * 2:
                 # 如果开始播放时是停止状态
+                lock.acquire()
                 playing = True
                 need_show = True
+                lock.release()
                 switch_play_status()
                 print("全屏状态下的截图 开始播放时是停止状态")
                 time.sleep(3)
             else:
                 # 如果播放结束
                 un_full_screen()
+                lock.acquire()
                 playing = False
                 need_show = False
+                lock.release()
                 print("如果播放结束 un_full_screen")
                 time.sleep(5)
 
@@ -215,7 +230,10 @@ def main():
         time.sleep(5)
     # 结束
     while (not playing) and (time.time() - start_time > 20):
+        lock.acquire()
         running = False
+        lock.release()
+
         switch_record_status()
         switch_record_status()
         time.sleep(1)
