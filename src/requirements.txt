@@ -18,7 +18,7 @@ PyScreeze==0.1.18
 PyTweening==1.0.3
 pyuserinput==0.1.12
 PyWavelets==1.0.1
-pywin32==224
+pywin32==301
 requests==2.21.0
 scikit-image==0.14.1
 scipy==1.2.0
